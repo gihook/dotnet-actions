@@ -1,0 +1,98 @@
+@startuml
+
+title Actions Module
+
+package ActionModels {
+	class Executor {
+		+string id
+		+string role
+	}
+
+	class ValidationError {
+		+string fieldName
+		+object value
+		+string errorCode
+	}
+
+	class ActionInfo {
+		+string name
+		+ActionParameter[] params
+	}
+
+	enum ActionResultStatus {
+		ok,
+		badRequest,
+		unauthorized
+	}
+
+	class ActionResult<T> {
+		+ActionResultStatus resultStatus
+		+T resultData
+		+ValidationError[] validationErrors
+	}
+
+	class ActionDescription {
+		+string name
+		+Dictionary<string, object> params
+	}
+
+	class ActionParameter {
+		+string name
+		+string type
+	}
+}
+
+
+package ActionInterfaces {
+	interface IAction<T> {
+		+ValidationError[] validate(Executor: executor)
+		+T execute(Executor: executor)
+	}
+
+	abstract class Query<T> {
+		{abstract} +ValidationError[] validate(Executor: executor)
+		{abstract} +T execute(Executor: executor)
+	}
+
+	abstract class Command<T> {
+		{abstract} +ValidationError[] validate(Executor: executor)
+		{abstract} +T execute(Executor: executor)
+	}
+}
+
+package ActionCore {
+	class ActionExecutor {
+		+ActionResult<T> execute<T>(IAction<T> action, Executor executor)
+	}
+
+	class ActionParser {
+		+IAction createAction(ActionDescription actionDescription)
+		+ActionInfo getActionInfo(string actionName)
+	}
+}
+
+
+note left of ActionParser::createAction
+Dependency injection should work in action implementations.
+Possible solution: use autofac ac DIC
+end note
+
+
+Query -up-|> IAction
+Command -up-|> IAction
+
+ActionExecutor ...> Executor
+ActionExecutor ...> ActionResult
+ActionResult ...> ActionResultStatus
+ActionResult ...> ValidationError
+ActionParser ...> ActionDescription
+ActionParser ...> ActionInfo
+
+ActionCore --> ActionModels
+ActionCore --> ActionInterfaces
+ActionInterfaces --> ActionModels
+
+ActionInfo ...> ActionParameter
+
+IAction .left..> Executor
+@enduml

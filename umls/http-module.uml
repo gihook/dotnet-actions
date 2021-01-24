@@ -1,0 +1,29 @@
+@startuml
+
+package "Http Module" as HttpModule {
+	class ActionsController {
+		GET, POST /api/query/{actionName} -> executeQuery
+		POST /api/command/{actionName} -> executeCommand
+
+		+IActionResult<ActionResult<T>> executeQuery<T>(string actionName, Dictionary<string, object> params, executor Executor)
+		+IActionResult<ActionResult<T>> executeCommand(string actionName, Dictionary<string, object> params, executor Executor)
+	}
+}
+
+package "Actions Module" {
+	package ActionModels {
+		class Executor
+	}
+
+	package ActionCore {
+		class ActionExecutor
+	}
+}
+
+
+HttpModule --> ActionModels
+HttpModule --> ActionCore
+ActionsController ..> Executor
+ActionsController ..> ActionExecutor
+
+@enduml

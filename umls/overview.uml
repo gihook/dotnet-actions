@@ -1,0 +1,50 @@
+@startuml
+
+title Architecture Overview
+
+package "Technical Knowledge" as technicalKnowledge { 
+        [Actions Module] as actionsModule
+        [Http Module] as httpMoudule
+        [WS Module] as wsModule
+        [Acceptance Tests Module] as acceptanceTestModule
+        [Client Code Generator] as clientCodeGenerator
+        [Documentation Generator] as documentationCodeGenerator
+	[Azure Functions] as azureFunctions
+}
+
+package "Domain Specific Modules" as domainSpecificModules {
+        component "Domain Module" as sampleDomainModule
+}
+
+package "Technical Knowledge (Domain specific)" as technicalKnowledgeDomain {
+	[Models]
+	[Interfaces]
+	[Services]
+	[Data Access Layer] as dal
+}
+
+[Configuration Module] as configurationModule
+
+database "SQL Database" as sql
+
+httpMoudule --> actionsModule
+wsModule --> actionsModule
+acceptanceTestModule --> actionsModule
+actionsModule -right-> configurationModule
+configurationModule -down-> domainSpecificModules
+actionsModule <-- clientCodeGenerator
+actionsModule <-- documentationCodeGenerator
+actionsModule <-- azureFunctions
+
+
+sampleDomainModule -> Interfaces
+Services -up-> Models
+Services -up-> Interfaces
+dal -down-> Models
+dal -down-> sql
+dal -> Interfaces
+
+note top of configurationModule
+Setup dependency injection
+end note
+@enduml
