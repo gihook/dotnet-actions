@@ -74,7 +74,7 @@ package ActionCore {
 
 note left of ActionParser::createAction
 Dependency injection should work in action implementations.
-Possible solution: use autofac ac DIC
+Possible solution: use autofac ac DIC with named services
 end note
 
 
