@@ -24,20 +24,28 @@ package "Technical Knowledge (Domain specific)" as technicalKnowledgeDomain {
 }
 
 [Configuration Module] as configurationModule
+[Notifications Module] as notificationsModule
+[Notifications Interfaces Module] as notificationsInterfacesModule
 
 database "SQL Database" as sql
 
 httpMoudule --> actionsModule
 wsModule --> actionsModule
 acceptanceTestModule --> actionsModule
-actionsModule -right-> configurationModule
+
 configurationModule -down-> domainSpecificModules
+configurationModule ---> notificationsModule
+
+notificationsModule ---> notificationsInterfacesModule
+
+actionsModule -right-> configurationModule
 actionsModule <-- clientCodeGenerator
 actionsModule <-- documentationCodeGenerator
 actionsModule <-- azureFunctions
 
 
 sampleDomainModule -> Interfaces
+sampleDomainModule --> notificationsInterfacesModule
 Services -up-> Models
 Services -up-> Interfaces
 dal -down-> Models
@@ -46,5 +54,16 @@ dal -> Interfaces
 
 note top of configurationModule
 Setup dependency injection
+end note
+
+note left of notificationsModule
+Azure Service Bus or Redis
+for communication
+between servers
+end note
+
+note bottom of sampleDomainModule
+Set of implemented Actions
+(Queries/Commands)
 end note
 @enduml
