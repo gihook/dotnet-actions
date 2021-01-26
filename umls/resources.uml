@@ -1,0 +1,28 @@
+@startuml
+
+[Azure Timer triggered functions] as timerFunctions
+
+package "Shared Resources" {
+	[Service Bus] as serviceBus
+	[Azure Storage] as azureStorage
+}
+
+package "Azure AD Application Proxy" {
+	[Angular (Static)] as angularApp
+	[Azure HTTP triggered functions] as httpFunctions
+}
+
+
+angularApp ..> httpFunctions
+
+httpFunctions <..> serviceBus
+
+httpFunctions <..> azureStorage
+timerFunctions <.up.> serviceBus
+timerFunctions <.up.> azureStorage
+
+note left of timerFunctions
+There is only one azure functions resource
+end note
+
+@enduml
