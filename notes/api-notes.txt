@@ -1,0 +1,7 @@
+MANDATORY: setup logs in azure
+MANDATORY: add autoformatting (it would be nice on git like prettier in JS), needed for code review
+MANDATORY: rules for writing code:
+	file should not contain more than 150 lines of code
+	file should not contain more than 80 characters
+	no commented code allowed!
+	no copy/paste code allowed!
