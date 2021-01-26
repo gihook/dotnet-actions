@@ -9,3 +9,5 @@ MANDATORY rules for writing code:
 	no hardcoded values!
 	adding libraries only with permission
 	adding configuration only with permission
+	DAL never return IQueriable
+	DAL MUST NOT have business logic, it can only read/write

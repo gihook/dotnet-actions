@@ -1,0 +1,60 @@
+@startuml
+
+title Domain Technical Knowledge
+
+package Interfaces {
+	interface IGenericRepository<T> {
+		+T getById(Guid id)
+		+Task<T> saveAsync(T entity)
+		+Task delete(Guid T)
+		+Task<IEnumerable<T>> getAll()
+		+Task<IEnumerable<T>> getSome(Func<T, bool> whereCondition)
+		+Task apply?()
+	}
+
+	interface IGenericService<T> {
+		+T getById(Guid id)
+		+Task<T> saveAsync(T entity)
+		+Task delete(Guid T)
+		+Task<IEnumerable<T>> getAll()
+		+Task<IEnumerable<T>> getSome(Func<T, bool> whereCondition)
+	}
+}
+
+package "Data Access Layer" {
+	class GenericRepository<T> {
+		+T getById(Guid id)
+		+Task<T> saveAsync(T entity)
+		+Task delete(Guid T)
+		+Task<IEnumerable<T>> getAll()
+		+Task<IEnumerable<T>> getSome(Func<T, bool> whereCondition)
+		+Task apply?()
+	}
+}
+
+package "Services" {
+	class GenericService<T> {
+		+T getById(Guid id)
+		+Task<T> saveAsync(T entity)
+		+Task delete(Guid T)
+		+Task<IEnumerable<T>> getAll()
+		+Task<IEnumerable<T>> getSome(Func<T, bool> whereCondition)
+	}
+}
+
+GenericRepository --|> IGenericRepository
+GenericService --|> IGenericService
+
+GenericService -> GenericRepository
+
+note right of IGenericRepository 
+NOTE: Repository never exposes
+implementation details
+e.g. it returns IEnumerable instead of IQueriable
+end note
+
+note bottom of IGenericRepository
+apply() can be used to implement transactions
+end note
+
+@enduml
