@@ -3,10 +3,12 @@
 package "Http Module" as HttpModule {
 	class ActionsController {
 		GET, POST /api/query/{actionName} -> executeQuery
-		POST /api/command/{actionName} -> executeCommand
+		POST /api/multiple-query/{actionName} -> executeCommand
+		POST /api/command/{actionName} -> executeMultipleQueries (do we need this?)
 
 		+IActionResult<ActionResult<T>> executeQuery<T>(string actionName, Dictionary<string, object> params, executor Executor)
-		+IActionResult<ActionResult<T>> executeCommand(string actionName, Dictionary<string, object> params, executor Executor)
+		+IActionResult<ActionResult<T>> executeCommand<T>(string actionName, Dictionary<string, object> params, executor Executor)
+		+IActionResult<Dictionary<string, ActionResult<T>>> executeMultipleQueries<T>(Dictionary<string, Dictionary<string, object>> queryDescriptors, executor Executor)
 	}
 }
 
