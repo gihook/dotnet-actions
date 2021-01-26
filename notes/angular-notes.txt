@@ -1,0 +1,15 @@
+MANDATORY: add autoformatting (it would be nice on git like prettier in JS),
+	needed for code review
+MANDATORY rules for writing code:
+	file should not contain more than 150 lines of code
+	file should not contain more than 80 characters
+	no commented code allowed!
+	no copy/paste code allowed!
+	no hardcoded values!
+	adding libraries only with permission
+
+Create service that will be able to execute actions
+Only use relative paths
+DO NOT hardcode strings, use translation pipe
+Two types of compnents: smart and dumb (based on ChangeDetectionStrategy)
+Use async pipe
