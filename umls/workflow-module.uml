@@ -25,7 +25,7 @@ package Models {
 		}
 
 		class EventTransitionDescriptor {
-			+Event event
+			+EventDescriptor event
 			+State fromState
 			+ConditionalTransition[] conditionalTransitions
 		}
@@ -81,16 +81,20 @@ package Interfaces {
 }
 
 package StateMachine {
-	class EventParser {
+	class EventHandler {
 		+Event createEvent(string eventName, Dictionary<string, object> inputs)
 	} 
 
 	class WorkflowHandler {
+		+constructor(WorkflowDescriptor workflowDescriptor)
+		+StateInfo getCurrentState(string aggregateId)
+		+EventTransitionDescriptor getMatchingEventTransitionDescriptor(string eventName, StateInfo currentState)
+		+StateInfo executeEvent(EventDescriptor eventDescriptor, StateInfo currentState)
 		+Task<StateInfo> applyEvent(string eventName, object params, EventExecutor executor)
 	}
 
 	WorkflowHandler --* IEventStorage
-	WorkflowHandler -right-* EventParser
+	WorkflowHandler -right-* EventHandler
 
 	class WorflowHandlerFactory {
 		+constructor(IWorkflowDefinitionLoader loader, IEventStorage eventStorage)
