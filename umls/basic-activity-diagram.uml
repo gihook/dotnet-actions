@@ -1,0 +1,22 @@
+@startuml
+|HTTP Module|
+start
+:Parse request;
+:Create Command;
+|Actions Module|
+:Validate Command Parameters;
+:Create Event;
+|Workflow Module|
+:Validate Event Parameters;
+:Store Event;
+|Notifications Module|
+:Raise Change Event;
+|Workflow Module|
+:Create Event Result;
+|Actions Module|
+:Parse Event Result;
+|HTTP Module|
+:Parse Action Result;
+:Respond to Client;
+stop
+@enduml

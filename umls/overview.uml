@@ -13,21 +13,17 @@ package "Technical Knowledge" as technicalKnowledge {
 }
 
 package "Domain Specific Modules" as domainSpecificModules {
-        component "Domain Module" as sampleDomainModule
+	component "Sample Domain Module" as sampleDomainModule
 }
 
 package "Technical Knowledge (Domain specific)" as technicalKnowledgeDomain {
-	[Models]
-	[Interfaces]
-	[Services]
-	[Data Access Layer] as dal
+	[Workflow Module] as workflowModule
+	[Hierarchy Module] as hierarchyModule
 }
 
 [Configuration Module] as configurationModule
 [Notifications Module] as notificationsModule
 [Notifications Interfaces Module] as notificationsInterfacesModule
-
-database "SQL Database" as sql
 
 httpMoudule --> actionsModule
 wsModule --> actionsModule
@@ -44,13 +40,10 @@ actionsModule <-- documentationCodeGenerator
 actionsModule <-- azureFunctions
 
 
-sampleDomainModule -> Interfaces
 sampleDomainModule --> notificationsInterfacesModule
-Services -up-> Models
-Services -up-> Interfaces
-dal -down-> Models
-dal -down-> sql
-dal -> Interfaces
+sampleDomainModule ---> workflowModule
+sampleDomainModule --> hierarchyModule
+
 
 note top of configurationModule
 Setup dependency injection

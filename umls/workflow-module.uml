@@ -1,0 +1,139 @@
+@startuml
+
+package Models {
+	package Descriptors {
+		class WorkflowDescriptor {
+			+string id
+			+string name
+			+string description
+			+string version
+			+EventDescriptor[] events 
+			+StateDescriptor[] states 
+			+EventTransitionDescriptor[] eventTransitions
+		}
+
+		class EventDescriptor {
+			+string name
+			+Dictionary<string, InputType> inputs
+			+InputValidatorDescriptor[] validators
+			+EventReducerDescriptor reducer
+		}
+
+		class StateDescriptor {
+			+string name
+			+string description
+		}
+
+		class EventTransitionDescriptor {
+			+Event event
+			+State fromState
+			+ConditionalTransition[] conditionalTransitions
+		}
+
+		class EventReducerDescriptor {
+			+type string
+			+object[] params
+		}
+
+		class ConditionalTransitionDescriptor {
+			+string condition
+			+object[] params
+			+string toState
+		}
+
+		class InputValidatorDescriptor {
+			+string type 
+			+object[] params
+			+bool isNegated
+		}
+	}
+
+	class StateInfo {
+		+State state
+		+object stateData
+	}
+
+	class EventExecutor {
+		+string userId
+		+string hierarchy
+		+string[] roles
+	}
+
+	class EventPayload {
+		+int orderNumber
+		+string aggregateId
+		+string eventName
+		+object data
+		+EventExecutor eventExecutor
+		+DateTime timestamp
+	}
+}
+
+package Interfaces {
+	interface IWorkflowDefinitionLoader {
+		+Task<Dictionary<string, Workflow>> loadWorkflows()
+	}
+
+	interface IEventStorage {
+		+Task<EventPayload[]> readEventStreamAsync(string aggregateId)
+		+Task<EventPayload> writeToEventStreamAsync(string aggregateId, EventPayload payload)
+	}
+}
+
+package StateMachine {
+	class EventParser {
+		+Event createEvent(string eventName, Dictionary<string, object> inputs)
+	} 
+
+	class WorkflowHandler {
+		+Task<StateInfo> applyEvent(string eventName, object params, EventExecutor executor)
+	}
+
+	WorkflowHandler --* IEventStorage
+	WorkflowHandler -right-* EventParser
+
+	class WorflowHandlerFactory {
+		+constructor(IWorkflowDefinitionLoader loader, IEventStorage eventStorage)
+		+WorflowHandler createWorkflowHandler(string workflowId, string aggregateId)
+	}
+
+	WorflowHandlerFactory --* IEventStorage
+	WorflowHandlerFactory --* IWorkflowDefinitionLoader
+}
+
+package EventStore {
+	class InMemoryEventStorage {
+
+	}
+
+	class EntityFrameworkEventStorage {
+
+	}
+
+	InMemoryEventStorage -up-|> IEventStorage
+	EntityFrameworkEventStorage -up-|> IEventStorage
+}
+
+package WorkflowStorage {
+	class FileWorkflowDefinitionLoader {
+
+	}
+
+	class DatabaseWorkflowDefinitionLoader {
+
+	}
+
+	class WorkflowParser {
+		+constructor(string workflowDefinition)
+		+WorkflowDescriptor getWorkflowDescriptor()
+	}
+
+	FileWorkflowDefinitionLoader -up-|> IWorkflowDefinitionLoader
+	DatabaseWorkflowDefinitionLoader -up-|> IWorkflowDefinitionLoader
+
+	FileWorkflowDefinitionLoader -down-* WorkflowParser
+	DatabaseWorkflowDefinitionLoader -down-* WorkflowParser
+}
+
+
+@enduml
