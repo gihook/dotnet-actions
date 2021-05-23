@@ -69,9 +69,19 @@ package Models {
 	}
 }
 
+package Translators {
+	class EventTranslator {
+		+Func getReducerFunction(EventDescriptor eventDescriptor)
+	}
+
+	class ValidatiorTranslator {
+		+Func getValidatorFunction(InputValidatorDescriptor inputValidatorDescriptor)
+	}
+}
+
 package Interfaces {
 	interface IWorkflowDefinitionLoader {
-		+Task<Dictionary<string, Workflow>> loadWorkflows()
+		+Task<Dictionary<string, WorkflowDescriptor>> loadWorkflows()
 	}
 
 	interface IEventStorage {
@@ -81,10 +91,6 @@ package Interfaces {
 }
 
 package StateMachine {
-	class EventHandler {
-		+Event createEvent(string eventName, Dictionary<string, object> inputs)
-	} 
-
 	class WorkflowHandler {
 		+constructor(WorkflowDescriptor workflowDescriptor)
 		+StateInfo getCurrentState(string aggregateId)
@@ -94,7 +100,8 @@ package StateMachine {
 	}
 
 	WorkflowHandler --* IEventStorage
-	WorkflowHandler -right-* EventHandler
+	WorkflowHandler -up-* EventTranslator
+	WorkflowHandler -up-* ValidatiorTranslator
 
 	class WorflowHandlerFactory {
 		+constructor(IWorkflowDefinitionLoader loader, IEventStorage eventStorage)
