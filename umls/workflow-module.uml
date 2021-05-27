@@ -1,47 +1,48 @@
 @startuml
 
-package Models {
-	package Descriptors {
-		class WorkflowDescriptor {
-			+string id
-			+string name
-			+string description
-			+string version
-			+string[] states 
-			+EventDescriptor[] eventDescriptors 
-			+EventTransitionDescriptor[] eventTransitionDescriptors
-		}
-
-		class EventDescriptor {
-			+string name
-			+Dictionary<string, InputType> inputs
-			+InputValidatorDescriptor[] validators
-			+EventReducerDescriptor reducer
-		}
-
-		class EventTransitionDescriptor {
-			+EventDescriptor event
-			+string fromState
-			+ConditionalTransition[] conditionalTransitions
-		}
-
-		class EventReducerDescriptor {
-			+type string
-			+object[] params
-		}
-
-		class ConditionalTransitionDescriptor {
-			+string condition
-			+object[] params
-			+string toState
-		}
-
-		class InputValidatorDescriptor {
-			+string type 
-			+object[] params
-			+bool isNegated
-		}
+package Descriptors {
+	class WorkflowDescriptor {
+		+string id
+		+string name
+		+string description
+		+string version
+		+string[] states 
+		+EventDescriptor[] eventDescriptors 
+		+EventTransitionDescriptor[] eventTransitionDescriptors
 	}
+
+	class EventDescriptor {
+		+string name
+		+Dictionary<string, InputType> inputs
+		+InputValidatorDescriptor[] validators
+		+EventReducerDescriptor reducer
+	}
+
+	class EventTransitionDescriptor {
+		+EventDescriptor event
+		+string fromState
+		+ConditionalTransition[] conditionalTransitions
+	}
+
+	class EventReducerDescriptor {
+		+type string
+		+object[] params
+	}
+
+	class ConditionalTransitionDescriptor {
+		+string condition
+		+object[] params
+		+string toState
+	}
+
+	class InputValidatorDescriptor {
+		+string type 
+		+object[] params
+		+bool isNegated
+	}
+}
+
+package Models {
 
 	class StateInfo {
 		+string state
