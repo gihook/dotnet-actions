@@ -7,9 +7,9 @@ package Models {
 			+string name
 			+string description
 			+string version
-			+EventDescriptor[] events 
-			+StateDescriptor[] states 
-			+EventTransitionDescriptor[] eventTransitions
+			+string[] states 
+			+EventDescriptor[] eventDescriptors 
+			+EventTransitionDescriptor[] eventTransitionDescriptors
 		}
 
 		class EventDescriptor {
@@ -19,14 +19,9 @@ package Models {
 			+EventReducerDescriptor reducer
 		}
 
-		class StateDescriptor {
-			+string name
-			+string description
-		}
-
 		class EventTransitionDescriptor {
 			+EventDescriptor event
-			+State fromState
+			+string fromState
 			+ConditionalTransition[] conditionalTransitions
 		}
 
@@ -49,7 +44,7 @@ package Models {
 	}
 
 	class StateInfo {
-		+State state
+		+string state
 		+object stateData
 	}
 
@@ -69,7 +64,18 @@ package Models {
 	}
 }
 
-package Translators {
+package Interfaces {
+	interface IEventStorage {
+		+Task<EventPayload[]> readEventStreamAsync(string aggregateId)
+		+Task<EventPayload> writeToEventStreamAsync(string aggregateId, EventPayload payload)
+	}
+
+	interface IWorkflowDefinitionLoader {
+		+Task<Dictionary<string, WorkflowDescriptor>> loadWorkflows()
+	}
+}
+
+package StateMachine {
 	class EventTranslator {
 		+Func getReducerFunction(EventDescriptor eventDescriptor)
 	}
@@ -77,39 +83,48 @@ package Translators {
 	class ValidatiorTranslator {
 		+Func getValidatorFunction(InputValidatorDescriptor inputValidatorDescriptor)
 	}
-}
 
-package Interfaces {
-	interface IWorkflowDefinitionLoader {
-		+Task<Dictionary<string, WorkflowDescriptor>> loadWorkflows()
-	}
-
-	interface IEventStorage {
-		+Task<EventPayload[]> readEventStreamAsync(string aggregateId)
-		+Task<EventPayload> writeToEventStreamAsync(string aggregateId, EventPayload payload)
-	}
-}
-
-package StateMachine {
 	class WorkflowHandler {
-		+constructor(WorkflowDescriptor workflowDescriptor)
-		+StateInfo getCurrentState(string aggregateId)
-		+EventTransitionDescriptor getMatchingEventTransitionDescriptor(string eventName, StateInfo currentState)
-		+StateInfo executeEvent(EventDescriptor eventDescriptor, StateInfo currentState)
-		+Task<StateInfo> applyEvent(string eventName, object params, EventExecutor executor)
+		+StateInfo getCurrentState(string aggregateId, string workflowId)
+		+StateInfo executeEvent(EventPayload eventPayload, string workflowId)
 	}
 
-	WorkflowHandler --* IEventStorage
-	WorkflowHandler -up-* EventTranslator
-	WorkflowHandler -up-* ValidatiorTranslator
+	WorkflowHandler --* StateCalculator
+	WorkflowHandler --* EventValidationExecutor
 
-	class WorflowHandlerFactory {
-		+constructor(IWorkflowDefinitionLoader loader, IEventStorage eventStorage)
-		+WorflowHandler createWorkflowHandler(string workflowId, string aggregateId)
+	class StateDataCalculator {
+		+constructor(IEventStorage eventStore, Dictionary<string, WorkflowDescriptor> descriptor)
+		+object calculateCurrentStateData(string aggregateId);
+		+objcet applyEvent(string aggregateId, EventPayload payload)
 	}
 
-	WorflowHandlerFactory --* IEventStorage
-	WorflowHandlerFactory --* IWorkflowDefinitionLoader
+	StateDataCalculator --* IEventStorage
+	StateDataCalculator -up-* EventTranslator
+	StateDataCalculator -right-* WorkflowDefinitionHelper
+
+	class WorkflowDefinitionHelper {
+		-Dictionary<string, WorkflowDescriptor> workflowDescriptors
+
+		+EventDescriptor getEventDescriptor(string eventName, string workflowId)
+		+ConditionalTransition gatMatchingTransition(string eventName, string workflowId, object calculatedState)
+	}
+
+	WorkflowDefinitionHelper -up-* IWorkflowDefinitionLoader
+
+	class StateCalculator {
+		+StateInfo getCurrentStateInfo(string aggregateId, string workflowId)
+		+StateInfo applyEvent(string aggregateId, string workflowId, EventPayload payload)
+	}
+
+	class EventValidationExecutor {
+		+ValidationError[] validateEvent(object currentState, EventPayload eventPayload, workflowId)
+	}
+
+	EventValidationExecutor --* WorkflowDefinitionHelper
+	EventValidationExecutor --* ValidatiorTranslator
+
+	StateCalculator --* WorkflowDefinitionHelper
+	StateCalculator --* StateDataCalculator
 }
 
 package EventStore {
