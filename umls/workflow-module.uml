@@ -43,7 +43,6 @@ package Descriptors {
 }
 
 package Models {
-
 	class StateInfo {
 		+string state
 		+object stateData
@@ -83,6 +82,7 @@ package StateMachine {
 
 	class ValidatiorTranslator {
 		+Func getValidatorFunction(InputValidatorDescriptor inputValidatorDescriptor)
+		+bool canParse(string type, object value)
 	}
 
 	class WorkflowHandler {
@@ -108,9 +108,16 @@ package StateMachine {
 
 		+EventDescriptor getEventDescriptor(string eventName, string workflowId)
 		+ConditionalTransition gatMatchingTransition(string eventName, string workflowId, object calculatedState)
+		+bool transitionIsAllowed(string eventName, StateInfo currentState, string workflowId)
 	}
 
 	WorkflowDefinitionHelper -up-* IWorkflowDefinitionLoader
+
+	class ParameterTranslator {
+		+object getParameterValue(string parameter)
+	}
+
+	EventValidationExecutor --* ParameterTranslator
 
 	class StateCalculator {
 		+StateInfo getCurrentStateInfo(string aggregateId, string workflowId)
