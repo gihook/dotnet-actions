@@ -76,9 +76,19 @@ package Interfaces {
 }
 
 package StateMachine {
-	class EventTranslator {
-		+Func getReducerFunction(EventDescriptor eventDescriptor)
+	class ReducerTranslator {
+		+IEventReducer getReducer(EventPayload payload, string workflowId)
 	}
+
+	ReducerTranslator --* WorkflowDefinitionHelper
+
+	class StateChanger {
+		+string getNewState(object stateData, EventPayload payload, string workflowId)
+	}
+
+	StateChanger --* WorkflowDefinitionHelper
+	StateChanger --* ValidatiorTranslator
+	StateChanger --* ParameterTranslator
 
 	class ValidatiorTranslator {
 		+Func getValidatorFunction(InputValidatorDescriptor inputValidatorDescriptor)
@@ -93,16 +103,6 @@ package StateMachine {
 	WorkflowHandler --* StateCalculator
 	WorkflowHandler --* EventValidationExecutor
 
-	class StateDataCalculator {
-		+constructor(IEventStorage eventStore, Dictionary<string, WorkflowDescriptor> descriptor)
-		+object calculateCurrentStateData(string aggregateId);
-		+objcet applyEvent(string aggregateId, EventPayload payload)
-	}
-
-	StateDataCalculator --* IEventStorage
-	StateDataCalculator -up-* EventTranslator
-	StateDataCalculator -right-* WorkflowDefinitionHelper
-
 	class WorkflowDefinitionHelper {
 		-Dictionary<string, WorkflowDescriptor> workflowDescriptors
 
@@ -111,7 +111,7 @@ package StateMachine {
 		+bool transitionIsAllowed(string eventName, StateInfo currentState, string workflowId)
 	}
 
-	WorkflowDefinitionHelper -up-* IWorkflowDefinitionLoader
+	WorkflowDefinitionHelper -down-* IWorkflowDefinitionLoader
 
 	class ParameterTranslator {
 		+object getParameterValue(string parameter)
@@ -131,8 +131,8 @@ package StateMachine {
 	EventValidationExecutor --* WorkflowDefinitionHelper
 	EventValidationExecutor --* ValidatiorTranslator
 
-	StateCalculator --* WorkflowDefinitionHelper
-	StateCalculator --* StateDataCalculator
+	StateCalculator --* ReducerTranslator
+	StateCalculator --* StateChanger
 }
 
 package EventStore {
